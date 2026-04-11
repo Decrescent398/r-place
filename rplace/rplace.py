@@ -10,54 +10,48 @@ def link(text: str, url: str, bool: bool) -> rx.Component:
     return rx.link(
         rx.text(
             text,
-            size="6",
-            weight="bold",
-            style={
-                "color": "#EC3750",
-                "textDecoration": "underline",
-                "textDecorationThickness": "2px",
-                }
+            size="2",
+            color_scheme="gray",
             ),
         href=url,
         is_external=bool,
+        z_index="5",
     )
 
 def navbar() -> rx.Component:
-    return rx.grid(
-        rx.image(
-            src="/flag-orpheus-top.png",
-            width="10em",
-            height="auto",
+    return rx.menu.root(
+        rx.menu.trigger(
+            rx.button(
+                rx.icon(
+                    "align_justify", 
+                    stroke_width="2", 
+                    size=20,
+                ),
+                size="2",
+                variant="soft",
+                color_scheme="gray",
+                high_contrast=True,
+                radius="large",
+                position="fixed",
+                top="20px",
+                right="20px",
+            ),
         ),
-        rx.hstack(
-            link(text="HackClub",   url="https://hackclub.com",                            bool=True, ),
-            link(text="Tutorial",   url="/tutorial",                                       bool=False,),
-            link(text="Repository", url="https://github.com/Decrescent398/rplace-commits", bool=True, ),
-            justify="center",
-            spacing="7",
-            display=["none", "none", "flex"],
-        ),
-        rx.color_mode.button(position="top-right"),
-        top="0px",
-        z_index="5",
-        columns="1fr 3fr 1fr",
-        align_items="center",
-        width="100%",
-        style={
-            "backdropFilter": "blur(20px), saturate(120%)",
-            "WebkitBackdropFilter": "blur(20px), saturate(120%)",
-        }
+        rx.menu.content(
+            rx.menu.item(link(text="Tutorial",   url="/tutorial",                                       bool=False,)),
+            rx.menu.item(link(text="Repository", url="https://github.com/Decrescent398/rplace-commits", bool=True, )),
+            rx.menu.item(link(text="Download",   url="/canvas.jpg",                                     bool=True, )),
+            rx.menu.item(link(text="HackClub",   url="https://hackclub.com",                            bool=True, )),
+        )
     )
+    
+def canvas() -> rx.Component:
+    return rx.image(src="/canvas.jpg", width="100%", height="100vh", z_index="1", top="0")
 
 def index() -> rx.Component:
     return rx.box(
-        rx.vstack(
-          navbar(),
-          inset="0",
-          z_index="1",
-          background_color="transparent",
-          width="100%", 
-        ),
+        navbar(),
+        canvas(),
         width="100%",
     )
 
