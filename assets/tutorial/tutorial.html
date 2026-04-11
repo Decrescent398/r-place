@@ -1,0 +1,937 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Git &amp; GitHub for Beginners:</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+</style></head><body>
+<style>
+  :root { --text: rgb(55,53,47); --bg: #fff; }
+  [data-theme="dark"] { --text: rgb(220,218,212); --bg: #191919; }
+
+  @media only screen {
+    body { background: var(--bg); color: var(--text); }
+  }
+
+  /* fix all the hardcoded Notion colors */
+  [data-theme="dark"] hr { border-color: rgba(220,218,212,0.1); }
+  [data-theme="dark"] code { background: rgba(255,255,255,0.07); }
+  [data-theme="dark"] .simple-table-header-color { background: #2a2a2a; color: var(--text); }
+  [data-theme="dark"] table, [data-theme="dark"] th, [data-theme="dark"] td { border-color: rgba(220,218,212,0.1); }
+  [data-theme="dark"] th { color: rgba(220,218,212,0.5); }
+  [data-theme="dark"] a { color: var(--text); }
+
+  /* the button */
+  #theme-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 9999;
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1px solid rgba(55,53,47,0.15);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: rgb(55,53,47);
+    transition: background .2s, border-color .2s, transform .15s;
+  }
+  #theme-toggle:hover { background: rgba(255,255,255,0.95); border-color: rgba(55,53,47,0.3); }
+  #theme-toggle:active { transform: scale(0.93); }
+
+  * { scrollbar-width: none; }
+  ::-webkit-scrollbar { display: none; }
+</style>
+
+<button id="theme-toggle" aria-label="Toggle dark mode">
+  <svg class="moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <svg class="sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const btn  = document.getElementById('theme-toggle');
+  const sun  = btn.querySelector('.sun');
+  const moon = btn.querySelector('.moon');
+
+  function apply(theme) {
+    root.dataset.theme     = theme;
+    sun.style.display      = theme === 'dark' ? 'block' : 'none';
+    moon.style.display     = theme === 'dark' ? 'none'  : 'block';
+  }
+
+  const saved = localStorage.getItem('theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  apply(saved);
+
+  btn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    apply(next);
+  });
+</script>
+
+</script><article id="33f32741-0d53-8001-bbc9-f11470cc46d0" class="page sans"><header><img class="page-cover-image" src="dino-wallpaper.jpg" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="icon-rounded.png"/></div><h1 class="page-title" dir="auto"><strong>Git &amp; GitHub for Beginners:</strong></h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><p id="33f32741-0d53-80af-a80a-c94609d9f278" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-80d6-88e4-d47bb0a9a17e" class=""><strong>Wait… so what’s the difference between Git and GitHub?</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a3-9ec1-f32189c2fd24" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805f-ba2b-c6428758ad6e" class="">Git is a <strong>version control system</strong> that helps you track changes in your code. Think of it as a time machine where you can:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8065-b9e5-c312931907de" class="">✅ Save your progress at any time</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ca-86de-c1cf3317dacd" class="">✅ Revert back if things go wrong</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80d1-b353-fb3d7f736255" class="">✅ Work on multiple versions of your project</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8048-ae56-f68e59495c09" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a4-aa63-c19007af0726" class="">Imagine you&#x27;re building a Lego spaceship. You keep adding new boosters, components, and complex instruments. But what if one day, your little sibling storms in and knocks the whole thing over? 😱 If you had taken photos of your spaceship at every stage, you could easily rebuild it step by step.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f2-b1ba-c592b3cea0fc" class="">That’s what <strong>Git</strong> does for your code, it saves versions so you can always go back if something breaks!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80db-8ae7-cbf69c20eb60" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-80cb-8b78-d1de5d656bea" class=""><strong>GitHub = The Cloud for Your Code</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803f-a7b2-c9100c47420e" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-800c-9434-db77196ba69e" class="">GitHub is an <strong>online platform</strong> where you store your Git-tracked code, collaborate with others, and show off your projects!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8073-8939-c09740827028" class="">Think of it like Google Drive, but built specifically for code. You and your friends (or teammates) can work on the same project without messing up each other&#x27;s work. And best of all? It keeps everything backed up online!</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-8032-b2de-fc6d55c70237" class=""><strong>Step 1: Create a GitHub Account</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-808b-b82c-f6f205a8e0fa" class="">
+</p></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-8067-8aa4-fa828d6de010" class="numbered-list" start="1"><li>Go to<a href="https://github.com/"> </a><strong><a href="https://github.com/">GitHub</a></strong><strong> </strong></li></ol></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-806c-8dbb-e7744e8fbadb" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8031-9659-d9f4cf97f5b0" class="image"><a href="image4.png"><img style="width:703.96875px" src="image4.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8091-9e1d-e9fda96740a8" class="">
+</p></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-8048-8a02-f46be341373e" class="numbered-list" start="2"><li>Click <strong>Sign Up</strong></li></ol></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f1-8b20-d06700ff07f6" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8014-987a-faa8ba2d3d23" class="image"><a href="image2.png"><img style="width:703.96875px" src="image2.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80d4-991d-df455f2978a1" class="">
+</p></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-803a-a1a5-ffaa456bb76c" class="numbered-list" start="3"><li>Choose a cool username 😎, enter your email, and set a password.</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-8065-bfd4-e93f90f876b6" class="numbered-list" start="4"><li>Verify your email and log in!</li></ol></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805a-8835-cb895d693f34" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f1-9df0-cd9b3b58e840" class="">Congratulations, you now have access to the world&#x27;s biggest open-source developer community!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8022-80e6-cda08006a8a2" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-800f-8d2d-c28ff78bf13a" class=""><strong>Step 2: Installing Git</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8079-8bf1-cff3ce25b142" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e1-83bc-e4232af3b620" class=""><strong>Windows:</strong><a href="https://git-scm.com/downloads"> Download Git</a> and install it.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c0-89a6-c4208141db89" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8059-bbbe-ef02ab317c4c" class="image"><a href="image20.png"><img style="width:703.96875px" src="image20.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b9-85ae-c8bb92f7d5b0" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a8-8f7c-fe9a7d00f0da" class="">After finishing the installation you will see this:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8056-a255-c76dfdb3daa5" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8065-bdf7-d4220b1416e8" class="image"><a href="image5.png"><img style="width:703.96875px" src="image5.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8080-92c8-e5027da7abac" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b0-8d5e-cc872de5924b" class=""><strong>Mac:</strong> Open <strong>Terminal</strong> and type:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-801a-9966-e2b50ec33cba" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-80de-ace8-ecdc45affb4d" class=""><code><strong>brew install git  # If using Homebrew</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8032-858e-c9fb33a9c8a6" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8034-97d0-d4520c453b0b" class=""><strong>Linux:</strong> Open <strong>Terminal</strong> and type:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-808a-b7e8-c6c842954dc8" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-809d-9c9f-cff628d36b32" class=""><code><strong>sudo apt install git  # Ubuntu/Debian</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8074-9e4d-e0c0d1e10f5e" class=""><code><strong>sudo dnf install git  # Fedora</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-808f-8c06-db8fcead7706" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8024-aac7-d8784efe1548" class="">Before starting things off, create a folder anywhere and open it in your preferred IDE. I&#x27;m going to use Vscode for this tutorial.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8029-89a8-d9dec3c07c57" class="">Okay, so once you’re in Vscode and <strong>within</strong> your recently created folder open the terminal by doing ctrl + ‘ in windows.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e0-b706-ca1c945b4b68" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-8097-913c-fd8709bf4dde" class=""><strong>Step 3: Set Up Your Git Identity</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e3-be2c-cd8ccccc84c6" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8019-bcf5-ddc31e363e8a" class="">Before you start using Git, tell it <strong>who you are</strong>:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8069-ab6b-edc3ed8c910a" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ea-82ea-f1a4fae70439" class=""><code><strong>git config --global user.name &quot;Your github username&quot;</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-808b-b6c3-d36804df13b7" class=""><code><strong>git config --global user.email &quot;</strong></code><code><strong><a href="mailto:your@email.com">your@email.com</a></strong></code><code><strong>&quot;</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80fe-82c3-d87e16caf873" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b4-92b9-ec084a737158" class="">Why? Because Git records who made each change.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80d2-9338-c70b11ad735d" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-80d6-9fb0-dd5b97a464d0" class=""><strong>Step 4: Create Your First GitHub Repository</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8074-ba1b-e16f438cb354" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8014-b62c-d3d33aa90d3b" class="">Go to Github and click on the profile icon</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bc-8aad-d4c7bbe0bd5a" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8086-94c0-c18f1b9fb0f5" class="image"><a href="image30.png"><img style="width:703.96875px" src="image30.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f6-b98b-fee340e17a96" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8036-84a1-dc547b5c9b8f" class="">Then click on “Your Profile”</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8066-bdee-d6ffa70a5f91" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8006-8fee-f7ea25950bd8" class="image"><a href="image32.png"><img style="width:703.96875px" src="image32.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805d-9186-df986de616ba" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8038-94f7-ede6cea287ad" class="">And then Repositories</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8009-bf54-f4fc591a01ea" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8041-b641-cfff12508793" class="image"><a href="image8.png"><img style="width:703.984375px" src="image8.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b1-8607-f11fdba1a4ef" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8015-9332-c6e755fccbb0" class="">Click on the <strong>+</strong> in the top right → <strong>New repository</strong></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f4-bb2b-d5b3942160e3" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-809c-abed-d5feb62e0e70" class="image"><a href="image10.png"><img style="width:703.984375px" src="image10.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-809b-b836-e3c74a0773fd" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8086-b59b-c1a75966a05a" class="">Give it a name (e.g., awesome-project)</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8015-9e52-f0fb5bc34bf1" class="">Choose <strong>Public</strong> or <strong>Private </strong>(Choose public for this tutorial because it simplifies things)</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e5-9270-e0c18194e737" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8073-b2a9-fc5f41252b8f" class="image"><a href="image11.png"><img style="width:703.984375px" src="image11.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ac-a3f5-f5fa007b36ad" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f7-99bd-ea26560202f6" class="">Click <strong>Create repository</strong></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ec-a7a3-e003d861ae62" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8033-8fde-eb7033172667" class="image"><a href="image14.png"><img style="width:703.96875px" src="image14.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8044-ac64-ea85461b1bc5" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8066-b407-ff40dcb69906" class="">Boom! 🎆 Your repository is live on GitHub! It’s an empty space now, but let’s fill it with some code.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8078-9d34-ec7f8df25412" class="">Remember the spaceship from before? What you’ve done now is basically create a workstation with some basic parts like a instruction manual, some tape, snacks and a pen, for you to start building your lego spaceship</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8048-b003-d9519f103c27" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8068-8af8-e1d3663faa78" class="image"><a href="image27.jpg"><img style="width:703.984375px" src="image27.jpg"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8002-8b6f-c14bc2136859" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-80ec-aafd-f0ed0e056401" class=""><strong>Step 5: Connect Your Local Project to GitHub</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8008-9cfd-e22381394441" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80d6-975a-fe208b90bcb8" class="">Now, go back to the terminal you previously opened and initialize Git in your project by using the command: </p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8018-ab06-f5ffedc52355" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-8019-9aa2-fe693606a6ed" class=""><code><strong>git init</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80cb-8797-df1d5dd4ecbf" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8021-9e22-ebd2e68161c5" class="">This tells Git, &quot;Hey, start tracking this folder!&quot;</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8009-8128-c142d6a21e03" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8050-a769-c2fa74bdce25" class="">Link your GitHub repo to your local project:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8062-ac49-c14ff88d7d78" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-8001-a728-c531fd212c55" class=""><code><strong>git remote add origin </strong></code><code><strong><a href="https://github.com/your-username/awesome-project.git">https://github.com/your-username/awesome-project.git</a></strong></code> -&gt; the link of your project</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80aa-b9ac-fed3bc169523" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e1-84a8-d35f4d2fd3a1" class=""><strong>origin</strong> is the nickname for your GitHub repo!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8088-aec0-de26b1b7bc75" class="">For now, you can start coding and build your project</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b5-97dc-ed7dce32222e" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-80ee-a14c-cb0c4ab5f9e1" class=""><strong>Step 6: Make Changes and Save Them</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803b-a9c6-d41a6c01b65a" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-8048-8c30-cd3e83f7a488" class=""><strong>Check What&#x27;s Changed</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8003-98b6-f5c79684a78c" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-807a-bc75-c134074718bc" class=""><code><strong>git status</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8040-a4dd-ff1ded419269" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8039-a1a8-feb9c57ab407" class="">This shows which files have changed!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-809b-abeb-fc9d67b8b26f" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-80ba-90ef-c961ad134c2e" class=""><strong>Stage Your Changes</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8075-9594-e0daf77dcd49" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b0-8314-e3feac7ecab8" class=""><code><strong>git add .  </strong></code># To add all changed files to git</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8014-9e34-cb7dc7f48841" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8095-babc-e6f338a87eb6" class="">or</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8017-84cd-c3b8c29e90b0" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-804a-9f9b-cb3e225d59a0" class=""><code><strong>git add *.filextension</strong></code>  (Example: <code><strong>*.py </strong></code>adds all files with <code><strong>.py</strong></code> extension) # To add files of one type</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8078-9e3c-d27e69b9f090" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-800a-a602-f068e3255ebf" class="">Or</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8063-9007-dfd053ed619c" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-8018-9427-e60efb5ef18a" class=""><code><strong>git add filename.extension</strong></code> (Example: <code><strong>main.py</strong></code> adds the <code><strong>main.py</strong></code> file ONLY)</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-801a-abbb-ffe97b5f9658" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-805f-bb5d-dd23b1c62552" class=""><strong>Commit Your Changes</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8025-84dc-ef066e4ad5b5" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b2-b85b-d392e0c6c9bd" class=""><code><strong>git commit -m &quot;Your awesome commit message here!&quot;</strong></code></p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e4-b8ae-c631e26ea71b" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e1-8f9a-e369d455bfe7" class=""><strong>Commits are like saving your game progress!</strong> 🎮</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8071-a900-c3750aa73865" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8003-b67c-f46470414e03" class="">Once you’ve finished a part of your project, (or, I just finished building my spaceship) but you’ve had an idea, what if I add a tailpiece to my rocket. Will it look better? How am I going to do this without messing up the spaceship I’ve built so far?</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-804b-bbdf-d04ceb3e7bbd" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-80a3-bde8-df9b3a856077" class="image"><a href="Screenshot_2026-04-11_154312.png"><img style="width:720px" src="Screenshot_2026-04-11_154312.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-800e-b9b8-ca1cb713fa28" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ba-a084-f47a603acce0" class="">This is when you’re gonna use branching.</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-8068-83d6-d2ed3ab9fbd4" class=""><strong>Step 7: Branching</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-801d-9392-c4eab5ba9bf8" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8055-abbe-cfea45ae5d39" class="">Branching in GitHub (or Git) allows you to create separate versions of your project to work on new features, fixes, or experiments without affecting the main codebase.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bb-a737-c4fbc5308e84" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8069-95e0-cc3bad1d03f5" class="image"><a href="Screenshot_2026-04-11_154312%201.png"><img style="width:720px" src="Screenshot_2026-04-11_154312%201.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805a-8b1f-c9b9b4ae0cae" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8035-bca7-d21556af69d4" class="">Main branch: No Tailpiece</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8052-9186-c4058a003422" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-805b-85f5-c23bb92d1607" class="image"><a href="image6.jpg"><img style="width:703.984375px" src="image6.jpg"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803c-8e81-c0d2361c956d" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bd-a658-d78372eeabc9" class="">Feature branch: with tailpiece</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ef-854f-d9eae361ef0a" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8074-9581-f6312b2b66b2" class="">To enter the default branch (or main version of your project):</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-806c-9bf9-e17957a9af47" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-8057-a854-dc475912cc6d" class=""><code><strong>git branch -M main</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8043-89dc-f345c7e04ad1" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f7-bf84-df75b8b0f80e" class="">To create a new branch with an additional feature:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8092-b142-f4c855f5db18" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-805b-8fff-f62be9ddecd1" class=""><code><strong>git checkout -b feature-branch</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8002-9ca8-ecd1188bc7a1" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8032-8b5e-c98ec9bad28a" class="">Once you’ve run this command you can continue coding the new feature this won’t affect your main branch (main instance of the project)</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8011-bdca-f2e35d3886d7" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-801e-b459-daacedb65dc9" class=""><strong>Switch Between Branches</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8058-b945-f323b1cc2fe4" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-801c-9a82-ecb733b8a165" class=""><code><strong>git checkout main</strong></code>  -&gt;  Switch to main branch to code on main branch</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8096-92b0-c77d82ce42a3" class=""><code><strong>git checkout feature-branch</strong></code>  -&gt; Switch back to feature branch to code on feature branch</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8005-839d-e33f69fa6950" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b9-a619-c0c2ab9b1e37" class="">IMPORTANT: make sure you commit changes before switching branches or merging them otherwise git won’t be able to merge these branches</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8087-8023-d4ddd630804c" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-809a-a419-f9b31c701337" class=""><strong>Step 8: Merge Changes</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8028-bb95-e9bb6064b54f" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8024-b740-e3bd44e611c1" class="">If you like the feature you’ve added and want to include it as part of the main project</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8003-9715-e78a7c214c5e" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-809e-8435-d16dca4e9028" class="image"><a href="image24.png"><img style="width:703.984375px" src="image24.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8051-8ca9-fbfb192d3de2" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8073-b378-dbab3e04aaca" class="">and you want to bring changes from a feature branch into <strong>main</strong>:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e5-95c6-f14f9441324b" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-8003-9521-e0390c56adfd" class=""><code><strong>git checkout main</strong></code>  -&gt; To switch to main branch</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-804e-82a4-e50a31e658c4" class=""><code><strong>git merge feature-branch</strong></code>  -&gt; To merge feature into main</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8027-adca-c7dcf9bc1512" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-80fc-8067-e19103bc1459" class=""><strong>Step 9: Upload (Push) Changes to GitHub</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8047-8e0c-f233816aeb21" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b8-a722-c5d95c39a39e" class=""><code><strong>git push</strong></code> is a command used to <strong>upload your local code changes to GitHub (or any remote repository)</strong>.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a7-a213-e62d2380b530" class="">This is the equivalent of uploading a picture of the spaceship on instagram for all of you’re friends to see</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ce-b3ae-e8292b3e0787" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-80fa-81c1-d99911b9b49a" class="image"><a href="image12.png"><img style="width:704px" src="image12.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8002-b77d-d94c586560d0" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-809f-9089-c9a7cb6c43de" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-809a-bb28-f7f59ffb02b2" class=""><code><strong>git push -u origin main</strong></code>  # Push your main branch</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f5-8b9e-f788456a64af" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8003-aba4-ea9b1164b0f7" class="">(Point to remember: origin was the nickname we gave to our project at the beginning and main was the default branch you just merged changes into)</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8004-8398-dfe8212ec6d8" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ac-818d-fe61d55e03f6" class="">Since it’s your first time using git on your computer you will be prompted to sign in to give git access to your github page</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80eb-ac56-d4498460fe7f" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-801f-8d53-cea8bc090812" class="image"><a href="image9.png"><img style="width:571.984375px" src="image9.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803c-9e7f-ce4bd0b92e64" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8008-bcdc-cbc058594425" class="">Complete the necessary steps, and finally click on “Authorise git-ecosystem”</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bf-a985-e70f8323ff86" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-808d-aebc-d7be2c1d6f8f" class="image"><a href="image25.png"><img style="width:564.984375px" src="image25.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8004-b94b-d85f21823908" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8010-94c8-f3e5f962aab1" class="">BOOM! And you’re done now you can open the repository page on github, refresh, and you will be able to see the file you have just pushed</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b5-84e2-f0f7163dd54d" class="">ALRIGHT NOW YOU&#x27;RE A GIT EXPERT!!!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8046-af44-ca2a09fe49e0" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-80f9-9871-c0003ed956b3" class=""><strong>Step 10: Forking a Repository 🍴</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8035-8c12-ea8368eff6d5" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8062-9eeb-f7f58a866d19" class="">Forking lets you create your own copy of someone else&#x27;s GitHub repo so you can make changes without affecting the original. To fork:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8023-951a-ecb4a4f011a7" class="">For this tutorial go to:  <a href="https://github.com/Decrescent398/rplace-commits">https://github.com/Decrescent398/rplace-commits</a></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8054-8346-f0d433ea49c7" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805c-849e-c5cc986c23b3" class="">Click the <strong>Fork</strong> button (top right).</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8064-b9d4-f177078fb417" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-80b6-a84f-d40055ae6d55" class="image"><a href="image18.png"><img style="width:703.984375px" src="image18.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8098-99d1-c32984219108" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-804e-b46f-fc8030294449" class="">And then “Create fork”</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ef-b37e-ea386c82d1c5" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8071-9a53-d6cf3621d096" class="image"><a href="image14%201.png"><img style="width:703.96875px" src="image14%201.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ee-b2d2-d5b2c345f627" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8019-a5f0-f6a23768e97a" class="">You now have your own version of the repo in your GitHub account!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b9-8021-da31b295fd61" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-803c-bb4f-fc91006f6d0d" class="image"><a href="image36.png"><img style="width:703.984375px" src="image36.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8019-9fcb-ea810e49b62e" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c9-87c4-f4e9c7c5d840" class="">The forked repository will also show up on your repositories tab</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803e-9d9d-ec97d8851abd" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8083-812d-c6400b08799c" class="image"><a href="image23.png"><img style="width:703.96875px" src="image23.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80d8-9a57-f4f3451d2027" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-805b-9912-e86a2a395060" class=""><strong>Step 11: Cloning a Repository</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8010-a076-caa959d81c88" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ea-9ca6-d7eb37ede4bd" class="">Cloning in GitHub means creating a copy of a remote repository (from GitHub) on your local machine.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c0-989d-f30154d197e1" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-800d-a88d-ce688a8584a0" class="">So let’s say one of your friends at NASA has built a massive spaceship</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8006-8010-c03fda624c72" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-808c-8363-eef45de07b9c" class="image"><a href="image26.png"><img style="width:703.96875px" src="image26.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-809f-88f3-dcfed385991a" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8079-a67e-e7e7b10fdd20" class="">What cloning does is basically create a copy of the repository on your PC so that you can add features</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f0-a444-fddf5039d134" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8049-99c9-f4d639504bd6" class="image"><a href="image28.png"><img style="width:703.96875px" src="image28.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bf-bd31-f2cf31f6a71c" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8098-8eca-e428689e2c4d" class="">Once you’ve finished adding features push it back to the forked repository.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8024-bfa0-ec5cee71318a" class="">Here’s a step by step tutorial:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80f5-b699-d97871dda237" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8034-a321-d4489adf9204" class="">First create a new folder</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-802b-b63d-ececb09a0427" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-80dc-b5af-fb38cc971ebb" class="image"><a href="image3.png"><img style="width:253.984375px" src="image3.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ed-ade6-ebb442bffcdb" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c1-bd66-e6f04fa12372" class="">Open the folder in Vscode</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bb-899b-d5ba064f37b0" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8036-9f26-da60cca1bc67" class="image"><a href="image31.png"><img style="width:439.96875px" src="image31.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80fc-9978-f04cc9b0dd73" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8048-bb5d-e27e84519f74" class="">To clone a repository use:</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8056-b178-c88f203949b6" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b7-9fed-f62e4e580cd9" class=""><code><strong>git clone </strong></code><code><strong><a href="https://github.com/username/repository-name.git">https://github.com/username/repository-name.git</a></strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8094-a623-f4c055035b3c" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8098-85d1-de7fa4ba7d4a" class="">For this tutorial clone the repository you forked from: <a href="https://github.com/Decrescent398/GithubTutorial">https://github.com/Decrescent398/GithubTutorial</a></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8023-9b4e-f7027367d38e" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8075-a40a-f9778ccc89af" class="image"><a href="image16.png"><img style="width:703.984375px" src="image16.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e5-aff6-f9ba6546b2ac" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8094-b9a4-e610eca879a1" class="">After cloning you will see something like this, open the “git-ninjas.txt file” and introduce yourself, make sure to write your name (or github username if you prefer), what you’re working on and the link to your github profile</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8072-8a6e-d29fca5ba982" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-801d-bff8-cb4897c8da1e" class="image"><a href="image7.png"><img style="width:703.953125px" src="image7.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80cb-ac50-ce8e0c197095" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ca-86a6-d630433db07c" class="">Note to remember: The forked repository is the github page of your copy of the NASA spaceship with features you have just added and not the actual spaceship</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c5-8cec-fa60f70f8015" class="">IMPORTANT: Make sure you clone the forked repository and not the original one</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80db-93a5-d0c6afc7d328" class="">Now, Navigate to your folder</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-801b-87be-cada2ddf335c" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8091-8c37-c25e8d036870" class="image"><a href="image15.png"><img style="width:703.984375px" src="image15.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80aa-a206-da560b95c824" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805d-9cab-da1c05ccd02f" class="">And run the commands used in the previous steps<div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-809d-af9d-d9e8b7d5bd62" class=""><code><strong>git branch -M main</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8014-b90f-ccddefb21698" class=""><code><strong>git checkout -b main</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c4-88fb-c797806dc44d" class=""><code><strong>git add .</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8055-91f1-e23e36924547" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80fa-ba39-ecac0b48da61" class="">Bonus: You can use <code><strong>git status</strong></code> to see all the changes you have made since we’ve only edited the git-ninjas.txt file we’ll get this output</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80be-8eed-c102da225ad4" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8090-bf2a-fafd6aec55bc" class="image"><a href="image17.png"><img style="width:471.984375px" src="image17.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80c7-ba17-d841bd448182" class=""><div class="indented"><div style="display:contents" dir="auto"><p id="33f32741-0d53-8063-a65c-dd06544ff214" class=""><code><strong>git commit -m “your-name made changes”</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-801f-89da-eeeb0d1c2b15" class="">
+</p></div></div></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8075-b906-f903fb9b35d7" class="">And finally <code><strong>git push -u origin main</strong></code></p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803a-8365-f2e3e0e08aad" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8063-8f22-e151278dc226" class="">If you were paying attention all this while, you would have guessed by now, that these changes will now reflect on the github repository (or repo for short)</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ac-b59a-ea3b3e1ce5d2" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8006-a241-e42953702b2a" class="image"><a href="image21.png"><img style="width:703.9375px" src="image21.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="33f32741-0d53-806a-8c25-eaa86c786eb9" class=""><strong>Step 12: Pull Requests - Contribute to Open Source</strong></h2></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b6-844c-f995963bdaaf" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80fb-b5af-e3d6dfc4b37d" class="">Alright, back to the NASA spaceship, what you’ve done now is create a your own clone of the NASA spaceship added some VERY useful features and pushed them to your github repository</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80e1-afa2-ee3ddc34a6f7" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8084-a603-febb668e2b53" class="">You feel like these features could be very useful so you create a “Pull request” which is like saying “Hey NASA! I think these features would be awesome, can you include it in your Spaceship too pls pls pls??”.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8065-8ed8-fb52de042ada" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8060-9b28-ea5a812e64b4" class="">Since you forked a project and made changes, you can request the original project owner to merge your changes!</p></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-800b-8706-d8ebc950aaf4" class="numbered-list" start="1"><li>Go to your forked repo on GitHub.</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-807f-8f76-ca6b6f7bf26a" class="numbered-list" start="2"><li>Click <strong>Pull Requests</strong> → <strong>New Pull Request</strong>.</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="33f32741-0d53-801e-9d22-c865d5647e41" class="numbered-list" start="3"><li>Select the original repo (https://github.com/Decrescent398/GithubTutorial) as the base and your fork as the compare.</li></ol></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8038-8f41-f0b888da147e" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8082-80e6-d5c4ab6fd2e7" class="image"><a href="image19.png"><img style="width:703.96875px" src="image19.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bc-8625-ff4e4cfd026e" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8001-ae35-e40be07781e3" class="">4. Click <strong>Create Pull Request</strong> and explain your changes.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8024-b22d-f6f19e15082f" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8003-a3ff-e93ce41a6ef8" class="image"><a href="image1.png"><img style="width:703.96875px" src="image1.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80de-861d-ec0fb5641818" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-8012-8172-d7c466397c5e" class="image"><a href="image35.png"><img style="width:703.984375px" src="image35.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ca-ba74-ef337ca224a8" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80bc-b20a-d74714830244" class="">5. Wait for approval!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8060-abf0-d295068c51c0" class="">I’m going to get a notification that you’ve created a pull request</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a4-88bc-dd32b0261e88" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-807c-a541-e1571cfb4b85" class="image"><a href="image34.png"><img style="width:703.9375px" src="image34.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ea-94d1-f4f8de3f0226" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-800a-8fa5-f313b22903cb" class="">And within a few hours I’ll approve it</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80d1-9491-c0b1b1a826a6" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="33f32741-0d53-801c-9ff7-dc0cf2f88a76" class="image"><a href="image29.png"><img style="width:703.984375px" src="image29.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8041-a7dd-edc118d829f1" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80ed-9349-f2997d66d94c" class="">Check back in at <a href="https://github.com/Decrescent398/GithubTutorial">https://github.com/Decrescent398/GithubTutorial</a>, “git-ninjas.txt” and you should see your introduction in the original repository.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8077-aebb-cce1be15632d" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8001-adc1-ea184b79e042" class="">Additionally, If you’re the owner of a repository with multiple other collaborators, to get the changes that you’re friends have made in the repository you don’t need to keep cloning and forking every time, you can use the command <code><strong>git pull</strong></code> to directly get all the changes done while you were gone on your PC, and continue coding after</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8035-a35a-df23903313ff" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8088-b76e-d5811642ebbf" class="">WOAH WE’VE GOT A GIT NINJA ON THE BLOCK NOW!</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80de-9a95-dcd35c91dace" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-807e-b8f4-c10e2b0db6e1" class="">Alright so why does any of this actually matter?</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a8-949c-e08223571a83" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-804b-bf37-f8a7b5d0ee1a" class=""><strong>Cloning</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-805e-a65b-c9cd555d2c2a" class="">You&#x27;re working in a <strong>company like Google</strong>.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a0-bb2b-df6209070443" class="">The team lead pushes the latest code to GitHub.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-807f-8806-f67aa74f00a6" class="">You <strong>clone the repo locally</strong> to build a <strong>new feature or fix a bug</strong>.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-806b-bb2e-c17ecb8a3ea4" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-80d7-8196-ef2898f8b32f" class=""><strong>Forking</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-809e-8380-e791215733bc" class="">You want to <strong>contribute to ReactJS or TensorFlow</strong> (open-source projects).</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b2-a633-e74d84504277" class="">Since you <strong>don&#x27;t have access to the original code</strong>, you <strong>fork the repo</strong> to your own GitHub account.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-8084-ab1c-ffe2fe5d56d9" class="">You make changes and then request the maintainers to merge them.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803c-a17f-e679e281b720" class="">
+</p></div><div style="display:contents" dir="auto"><h3 id="33f32741-0d53-8091-b12e-d2c2a18c286f" class=""><strong>Pull Request (PR)</strong></h3></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-803d-b72e-e227af1708f9" class="">You&#x27;re working with your <strong>team at Microsoft</strong>.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80a3-b637-f903b858095e" class="">You create a new branch, add a new feature, and open a <strong>Pull Request for your teammates to review your code before merging it into the main branch</strong>.</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b4-8b16-d0256baeb214" class="">
+</p></div><div style="display:contents" dir="auto"><p id="33f32741-0d53-80b7-b64b-e2edd97e1888" class="">If you want to learn how git works internally in an interactive manner I strongly recommend checking out: https://learngitbranching.js.org</p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
