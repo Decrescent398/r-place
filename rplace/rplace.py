@@ -1,4 +1,4 @@
-#Frontend - 3000, Backend - 8001
+#Frontend - 3000, Backend - 8000
 
 import reflex as rx
 from rxconfig import config
@@ -25,10 +25,13 @@ auth = Auth.Token(GITHUB_FINE_PAT)
 gh = Github(auth=auth, lazy=True)
 repo = gh.get_repo("Decrescent398/GithubTutorial-rplace-commits-")
 
-class State(rx.State):
+class FormState(rx.State):
     dialog_open: bool = True
-    username: str
+    username: str = rx.LocalStorage(sync=True)
     form_error: str
+    
+    def set_text(self, value: str):
+        self.username = value
     
     def toggle_dialog(self):
         self.dialog_open = not self.dialog_open
@@ -37,16 +40,16 @@ class State(rx.State):
         contributors = [contributor.login for contributor in repo.get_contributors()]
         return contributors
         
-    def check_valid_user(self, username):
-        if username in self.fetch_contributors():
+    def check_valid_user(self):
+        if self.username in self.fetch_contributors():
             return True
         return False
     
     async def handle_submit(self, form_data: dict):
         recaptcha_state = await self.get_state(GoogleRecaptchaV2State)
-        username = form_data.get("username", "")
+        self.username = form_data.get("username", "")
         
-        if self.check_valid_user(username) == False:
+        if self.check_valid_user() == False:
             self.form_error += " Please finish the tutorial at http://localhost:3000/tutorial to access this site!\n"
             return
                 
@@ -116,6 +119,8 @@ def verification():
                 rx.flex(
                     rx.center(
                         rx.input(
+                            value=FormState.username,
+                            on_change=FormState.set_text,
                             id="username",
                             placeholder="Github Username",
                             required=True,
@@ -132,11 +137,11 @@ def verification():
                             color_scheme="gray",
                         )
                     ),
-                    rx.text(State.form_error, align="center"),
+                    rx.text(FormState.form_error, align="center"),
                     direction="column",
                     spacing="4",
                 ),
-                on_submit=State.handle_submit,
+                on_submit=FormState.handle_submit,
             ),
             position="fixed",
             top="50%",
@@ -149,7 +154,7 @@ def verification():
             z_index="11",
             min_width="320px",
         ),
-        display=rx.cond(State.dialog_open, "block", "none"),
+        display=rx.cond(FormState.dialog_open, "block", "none"),
     )
     
 def canvas() -> rx.Component:
