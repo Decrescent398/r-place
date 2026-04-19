@@ -4,3 +4,6 @@ assets/external/
 *.py[cod]
 *.db
 .web
+.env
+
+.vscode/
