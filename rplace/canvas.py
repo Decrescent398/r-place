@@ -54,16 +54,22 @@ class FormState(rx.State):
             return
         
         self.toggle_dialog()
+        
+        
+def spacing():
+    return rx.box(height="1vh")
     
 def link(text: str, url: str, bool: bool) -> rx.Component:
     return rx.link(
         rx.text(
             text,
             size="2",
-            color_scheme="gray",
+            color="#FFFDF1",
+            weight="medium",
             ),
         href=url,
         is_external=bool,
+        padding="0.3vw",
         z_index="5",
     )
 
@@ -79,6 +85,7 @@ def navbar() -> rx.Component:
                 size="2",
                 variant="soft",
                 color_scheme="gray",
+                background="transparent",
                 high_contrast=True,
                 radius="large",
                 position="fixed",
@@ -92,7 +99,9 @@ def navbar() -> rx.Component:
             rx.menu.item(link(text="Download",   url="/canvas.jpg",                                     bool=True, )),
             rx.menu.item(link(text="Home",       url="..",                                               bool=True, )),
             rx.menu.item(link(text="HackClub",   url="https://hackclub.com",                            bool=True, )),
-        )
+            color_scheme="red",
+            background_color="#000000",
+        ),
     )
     
 def verification():
@@ -104,14 +113,19 @@ def verification():
             left="0",
             width="100vw",
             height="100vh",
-            background_color="rgba(0,0,0,0.6)",
+            background_color="#000000",
             z_index="10",
         ),
         # Card
         rx.box(
             rx.center(
-                rx.heading("Welcome to r/Hack", size="5", margin_bottom="16px"),
+                rx.heading("Welcome to r/Hack", 
+                           size="7", 
+                           margin_bottom="16px", 
+                           color="#EC3750",
+                           ),
             ),
+            spacing(),
             rx.form(
                 rx.flex(
                     rx.center(
@@ -121,17 +135,23 @@ def verification():
                             id="username",
                             placeholder="Github Username",
                             required=True,
-                            color_scheme="gray",
+                            color_scheme="red",
+                            height="6vh",
                         )
                     ),
-                    rx.box(rx.center(google_recaptcha_v2())),
+                    spacing(),
+                    rx.box(
+                            rx.center(google_recaptcha_v2()),
+                            padding_inline="5px",
+                           ),
+                    spacing(),
                     rx.center(
                         rx.button(
                             "Submit",
                             type="submit",
-                            size="2",
+                            size="3",
                             variant="soft",
-                            color_scheme="gray",
+                            color_scheme="red",
                         )
                     ),
                     rx.text(FormState.form_error, align="center"),
@@ -144,7 +164,7 @@ def verification():
             top="50%",
             left="50%",
             transform="translate(-50%, -50%)",
-            background_color="#1a1a1a",
+            background_color="#000000",
             border="1px solid #333",
             padding="32px",
             border_radius="12px",
