@@ -110,6 +110,7 @@ def navbar() -> rx.Component:
                 high_contrast=True,
                 radius="large",
                 position="fixed",
+                z_index=9999,
                 top="20px",
                 right="20px",
             ),
