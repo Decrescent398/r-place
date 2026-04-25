@@ -56,6 +56,23 @@ class FormState(rx.State):
         self.toggle_dialog()
         
         
+class ColorState(rx.State):
+    
+    colors: list[str] = [
+        "#be4a2f", "#d77643", "#ead4aa", "#e4a672", "#b86f50", "#733e39", "#3e2731", "#a22633", 
+        "#e43b44", "#f77622", "#feae34", "#fee761", "#63c74d", "#3e8948", "#265c42", "#193c3e", 
+        "#124e89", "#0099db", "#2ce8f5", "#ffffff", "#c0cbdc", "#8b9bb4", "#5a6988", "#3a4466", 
+        "#262b44", "#181425", "#ff0044", "#68386c", "#b55088", "#f6757a", "#e8b796", "#c28569",]
+    
+    color_picker_state: bool = False
+    
+    x: int = 50
+    y: int = 50
+    
+    def toggle_color_picker(self):
+        self.color_picker_state = not self.color_picker_state
+        
+        
 def spacing():
     return rx.box(height="1vh")
     
@@ -175,12 +192,100 @@ def verification():
     )
     
 def canvas() -> rx.Component:
-    return rx.image(src="/canvas.jpg", width="100%", height="100vh", z_index="1", top="0")
+    return rx.box(
+            rx.image(src="/canvas.jpg", width="100%", height="100vh", z_index="999", top="0",),
+            width="100%", 
+            height="100vh",
+            position="fixed",
+            on_click=ColorState.toggle_color_picker,
+            )
+
+def color_placer():
+    return rx.cond(
+        ColorState.color_picker_state,
+        rx.box(
+            rx.script(
+                """
+                (function(){
+                    function init() {
+                        let dragging = false;
+                        let offsetX = 0;
+                        let offsetY = 0;
+                        const box = document.querySelector('[data-draggable]');
+                        
+                        // Load saved position
+                        const savedLeft = localStorage.getItem('draggable-left');
+                        const savedTop = localStorage.getItem('draggable-top');
+                        if (savedLeft && savedTop) {
+                            box.style.left = savedLeft;
+                            box.style.top = savedTop;
+                        }
+                        
+                        document.addEventListener('mousedown', (e) => {
+                            const target = e.target.closest('[data-draggable]');
+                            if (target) {
+                                dragging = true;
+                                offsetX = e.clientX - target.offsetLeft;
+                                offsetY = e.clientY - target.offsetTop;
+                            }
+                        });
+                        
+                        document.addEventListener('mousemove', (e) => {
+                            if (dragging) {
+                                box.style.left = (e.clientX - offsetX) + 'px';
+                                box.style.top = (e.clientY - offsetY) + 'px';
+                            }
+                        });
+                        
+                        document.addEventListener('mouseup', () => {
+                            if (dragging) {
+                                // Save position
+                                localStorage.setItem('draggable-left', box.style.left);
+                                localStorage.setItem('draggable-top', box.style.top);
+                            }
+                            dragging = false;
+                        });
+                    }
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        init();
+                    }
+                })();
+                """
+            ),
+            rx.box(
+                rx.grid(
+                    rx.foreach(
+                        ColorState.colors,
+                        lambda color: rx.box(background_color=color, height="4vh", width="2vw", cursor="default")
+                    ),
+                    columns="8",
+                    spacing_x="1",
+                    spacing_y="1",
+                ),
+                position="absolute",
+                left="50px",
+                top="50px",
+                height="22vh",
+                width="20vw",
+                border_radius="12px",
+                background_color="#000000",
+                padding="15px",
+                cursor="grab",
+                data_draggable="true",
+            ),
+            position="fixed",
+            z_index="1000",
+        ),
+    )
 
 def content() -> rx.Component:
     return rx.box(
         verification(),
         navbar(),
         canvas(),
+        color_placer(),
         width="100%",
     )
