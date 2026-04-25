@@ -8,6 +8,8 @@ import os
 from dotenv import load_dotenv
 from github import Github, Auth
 
+import asyncio
+
 load_dotenv()
 RECAPTCHA_SITE_KEY = os.getenv("RECAPTCHA_SITE_KEY")
 RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
@@ -46,14 +48,16 @@ class FormState(rx.State):
         self.username = form_data.get("username", "")
         
         if self.check_valid_user() == False:
-            self.form_error += " Please finish the tutorial at http://localhost:3000/tutorial to access this site!\n"
-            return
+            return rx.window_alert("Please finish the tutorial at http://localhost:3000/tutorial to access this site!")
                 
         if not recaptcha_state.token_is_valid:
-            self.form_error += "Invalid reCaptcha!"
-            return
+            return rx.window_alert("Invalid reCaptcha!")
         
         self.toggle_dialog()
+        
+        await asyncio.sleep(1.5)
+        
+        return rx.toast.info("Click anywhere to show/hide color picker", position="bottom-right", close_button=True)
         
         
 class ColorState(rx.State):
