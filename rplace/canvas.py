@@ -22,7 +22,7 @@ gh = Github(auth=auth, lazy=True)
 repo = gh.get_repo("Decrescent398/GithubTutorial-rplace-commits-")
 
 class FormState(rx.State):
-    dialog_open: bool = True
+    dialog_open: bool = False
     username: str = rx.LocalStorage(sync=True)
     form_error: str
     
@@ -202,18 +202,22 @@ def canvas() -> rx.Component:
 
 def color_placer():
     return rx.cond(
-        ColorState.color_picker_state,
+        ~FormState.dialog_open & ColorState.color_picker_state,
         rx.box(
             rx.script(
                 """
                 (function(){
                     function init() {
+                        const box = document.querySelector('[data-draggable]');
+                        if (!box) {
+                            setTimeout(init, 50);
+                            return;
+                        }
+                        
                         let dragging = false;
                         let offsetX = 0;
                         let offsetY = 0;
-                        const box = document.querySelector('[data-draggable]');
                         
-                        // Load saved position
                         const savedLeft = localStorage.getItem('draggable-left');
                         const savedTop = localStorage.getItem('draggable-top');
                         if (savedLeft && savedTop) {
@@ -231,15 +235,14 @@ def color_placer():
                         });
                         
                         document.addEventListener('mousemove', (e) => {
-                            if (dragging) {
+                            if (dragging && box) {
                                 box.style.left = (e.clientX - offsetX) + 'px';
                                 box.style.top = (e.clientY - offsetY) + 'px';
                             }
                         });
                         
                         document.addEventListener('mouseup', () => {
-                            if (dragging) {
-                                // Save position
+                            if (dragging && box) {
                                 localStorage.setItem('draggable-left', box.style.left);
                                 localStorage.setItem('draggable-top', box.style.top);
                             }
@@ -247,11 +250,7 @@ def color_placer():
                         });
                     }
                     
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', init);
-                    } else {
-                        init();
-                    }
+                    init();
                 })();
                 """
             ),
@@ -259,7 +258,7 @@ def color_placer():
                 rx.grid(
                     rx.foreach(
                         ColorState.colors,
-                        lambda color: rx.box(background_color=color, height="4vh", width="2vw", cursor="default")
+                        lambda color: rx.box(background_color=color, height="4vh", width="2vw", cursor="pointer")
                     ),
                     columns="8",
                     spacing_x="1",

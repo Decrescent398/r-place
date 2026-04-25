@@ -110,5 +110,5 @@ app = rx.App(
 )
 
 app.add_page(index, title="r/hack")
-app.add_page(canvas.content, title="r/hack", route="/canvas")
+app.add_page(canvas.content, title="r/hack", route="/canvas", on_load=canvas.FormState.toggle_dialog)
 app.add_page(tutorial.content, title="Tutorial", route="/tutorial")
