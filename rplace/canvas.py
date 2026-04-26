@@ -7,13 +7,26 @@ from reflex_google_recaptcha_v2 import google_recaptcha_v2, GoogleRecaptchaV2Sta
 import os
 from dotenv import load_dotenv
 from github import Github, Auth
+from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2.rfc6749.errors import AccessDeniedError
+import requests
+from urllib.parse import urlparse, parse_qs
 
 import asyncio
+
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 load_dotenv()
 RECAPTCHA_SITE_KEY = os.getenv("RECAPTCHA_SITE_KEY")
 RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
 GITHUB_FINE_PAT = os.getenv("GITHUB_FINE_PAT")
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
+GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
+
+GITHUB_AUTHORIZATION_BASE_URL = "https://github.com/login/oauth/authorize"
+GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
+GITHUB_USER_API_URL = "https://api.github.com/user"
 
 if not reflex_google_recaptcha_v2.is_key_set():
     reflex_google_recaptcha_v2.set_site_key(RECAPTCHA_SITE_KEY)
@@ -25,8 +38,13 @@ repo = gh.get_repo("Decrescent398/GithubTutorial-rplace-commits-")
 
 class FormState(rx.State):
     dialog_open: bool = False
-    username: str = rx.LocalStorage(sync=True)
     form_error: str
+    
+    username: str = ""
+    oauth_token: dict = {}
+    oauth_state: str = ""
+    github_authorised: bool = False
+    oauth_error: str = ""
     
     def set_text(self, value: str):
         self.username = value
@@ -37,21 +55,107 @@ class FormState(rx.State):
     def fetch_contributors(self):
         contributors = [contributor.login for contributor in repo.get_contributors()]
         return contributors
-        
-    def check_valid_user(self):
-        if self.username in self.fetch_contributors():
-            return True
-        return False
     
-    async def handle_submit(self, form_data: dict):
-        recaptcha_state = await self.get_state(GoogleRecaptchaV2State)
-        self.username = form_data.get("username", "")
+    def github_login(self):
+        github = OAuth2Session(
+            GITHUB_CLIENT_ID, 
+            redirect_uri=GITHUB_REDIRECT_URI, 
+            scope=["read:user", "user:email"]
+        )
         
-        if self.check_valid_user() == False:
-            return rx.window_alert("Please finish the tutorial at http://localhost:3000/tutorial to access this site!")
+        authorization_url, state = github.authorization_url(GITHUB_AUTHORIZATION_BASE_URL)
+        
+        self.oauth_state = state
+        return rx.redirect(authorization_url)
+    
+    def get_callback_url(self):
+        return rx.call_script(
+            "window.location.href",
+            callback=FormState.authorize_github_user,
+        )
+    
+    def authorize_github_user(self, callback_url: str):
+        
+        try:
+            parsed_url = urlparse(callback_url)
+            query_params = parse_qs(parsed_url.query)
+            
+            error = query_params.get("error", [None])[0]
+            if error:
+                self.oauth_error += "Github OAuth Error" + error + "\n"
+                return rx.redirect('canvas/access-denied')
+            
+            code = query_params.get("code", [None])[0]
+            returned_state = query_params.get("state", [None])[0]
+            
+            if not code:
+                self.oauth_error += "Missing OAuth Code" + "\n"
+                return rx.redirect('canvas/access-denied')
+            
+            if not returned_state:
+                self.oauth_error += "Missing OAuth State" + "\n"
+                return rx.redirect('canvas/access-denied')
+            
+            if returned_state != self.oauth_state:
+                self.oauth_error += "OAuth State Mismatch" + "\n"
+                self.oauth_error += "Expected:" + self.oauth_state + "\n"
+                self.oauth_error += "Returned:" + returned_state + "\n"
+                return rx.redirect('canvas/access-denied')
+        
+            github = OAuth2Session(
+                GITHUB_CLIENT_ID, 
+                redirect_uri=GITHUB_REDIRECT_URI, 
+                scope=["read:user,user:email"]
+            )
+            
+            token = github.fetch_token(
+                GITHUB_TOKEN_URL, 
+                client_secret=GITHUB_CLIENT_SECRET, 
+                authorization_response=callback_url,
+                headers={"Accept": "application/json",},
+            )
+            
+            self.oauth_token = token
+            
+            github = OAuth2Session(
+                GITHUB_CLIENT_ID, 
+                token=token
+            )
+            
+            response = github.get(GITHUB_USER_API_URL)
+            
+            if not response.ok:
+                self.oauth_error += "Github user API failed:" + response.text + "\n"
+                return rx.redirect('canvas/access-denied')
+            
+            user_info = response.json()
+            username = user_info.get('login')
+            
+            if not username:
+                self.oauth_error += "Github username missing" + response.text + "\n"
+                return rx.redirect('canvas/access-denied')
+            
+            self.username = username
+            if self.username in self.fetch_contributors():
+                self.github_authorised = True
+            else:
+                self.oauth_error += "Tutorial not finished" + "\n"
+                return rx.redirect('canvas/access-denied')
+            
+            return rx.redirect('/canvas')
+        
+        except Exception as e:
+            self.oauth_error += e + "\n"
+            return rx.redirect('canvas/access-denied')
+        
+    async def handle_submit(self):
+        recaptcha_state = await self.get_state(GoogleRecaptchaV2State)
                 
         if not recaptcha_state.token_is_valid:
             return rx.window_alert("Invalid reCaptcha!")
+        
+        if not self.github_authorised:
+            return rx.window_alert("User not Found! Finish the tutorial at http://localhost:3000/tutorial to access this site!")
         
         self.toggle_dialog()
         
@@ -126,6 +230,31 @@ def navbar() -> rx.Component:
         ),
     )
     
+@rx.page(route="/canvas/access-denied", title="Access Denied",)
+def error_details():
+    return rx.center(
+        rx.vstack(
+            rx.image(src="/confused_dinosaur.jpeg", height="20vh",),
+            rx.text("Access Denied :(", size="7",),
+            rx.text("This might have been a github OAuth issue, or you may have not finished the tutorial properly", size="4",),
+            rx.code(f"Error: {FormState.oauth_error}", size="4", variant="outline",),
+            rx.link("Click here to go to the tutorial page", href="/tutorial", size="4",),
+            spacing="4",
+        ),
+        height="100vh",
+    )
+    
+@rx.page(route="/canvas/callback", title="Authenticating with Github...", on_load=FormState.get_callback_url,)
+def callback():
+    return rx.center(
+        rx.vstack(
+            rx.spinner(size="3"),
+            rx.text("Authenticating with Github...", size="4"),
+            spacing="4",
+        ),
+        height="100vh",
+    )
+    
 def verification():
     return rx.box(
         # Backdrop
@@ -151,12 +280,11 @@ def verification():
             rx.form(
                 rx.flex(
                     rx.center(
-                        rx.input(
-                            value=FormState.username,
-                            on_change=FormState.set_text,
-                            id="username",
-                            placeholder="Github Username",
-                            required=True,
+                        rx.button(
+                            rx.icon(tag="github"),
+                            "Sign in with Github",
+                            on_click=FormState.github_login,
+                            variant="surface",
                             color_scheme="red",
                             height="6vh",
                         )
