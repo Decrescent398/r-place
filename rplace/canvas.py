@@ -1,9 +1,6 @@
 import reflex as rx
 from rxconfig import config
 
-import reflex_google_recaptcha_v2
-from reflex_google_recaptcha_v2 import google_recaptcha_v2, GoogleRecaptchaV2State
-
 import os
 from dotenv import load_dotenv
 from github import Github, Auth
@@ -17,8 +14,6 @@ import asyncio
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 load_dotenv()
-RECAPTCHA_SITE_KEY = os.getenv("RECAPTCHA_SITE_KEY")
-RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
 GITHUB_FINE_PAT = os.getenv("GITHUB_FINE_PAT")
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
@@ -28,26 +23,18 @@ GITHUB_AUTHORIZATION_BASE_URL = "https://github.com/login/oauth/authorize"
 GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_USER_API_URL = "https://api.github.com/user"
 
-if not reflex_google_recaptcha_v2.is_key_set():
-    reflex_google_recaptcha_v2.set_site_key(RECAPTCHA_SITE_KEY)
-    reflex_google_recaptcha_v2.set_secret_key(RECAPTCHA_SECRET_KEY)
-
 auth = Auth.Token(GITHUB_FINE_PAT)
 gh = Github(auth=auth, lazy=True)
 repo = gh.get_repo("Decrescent398/GithubTutorial-rplace-commits-")
 
 class FormState(rx.State):
     dialog_open: bool = False
-    form_error: str
     
     username: str = ""
     oauth_token: dict = {}
     oauth_state: str = ""
     github_authorised: bool = False
     oauth_error: str = ""
-    
-    def set_text(self, value: str):
-        self.username = value
     
     def toggle_dialog(self):
         self.dialog_open = not self.dialog_open
@@ -148,21 +135,6 @@ class FormState(rx.State):
             self.oauth_error += e + "\n"
             return rx.redirect('canvas/access-denied')
         
-    async def handle_submit(self):
-        recaptcha_state = await self.get_state(GoogleRecaptchaV2State)
-                
-        if not recaptcha_state.token_is_valid:
-            return rx.window_alert("Invalid reCaptcha!")
-        
-        if not self.github_authorised:
-            return rx.window_alert("User not Found! Finish the tutorial at http://localhost:3000/tutorial to access this site!")
-        
-        self.toggle_dialog()
-        
-        await asyncio.sleep(1.5)
-        
-        return rx.toast.info("Click anywhere to show/hide color picker", position="bottom-right", close_button=True)
-        
         
 class ColorState(rx.State):
     
@@ -173,12 +145,18 @@ class ColorState(rx.State):
         "#262b44", "#181425", "#ff0044", "#68386c", "#b55088", "#f6757a", "#e8b796", "#c28569",]
     
     color_picker_state: bool = False
+    color_picker_usage_state: bool = False
     
     x: int = 50
     y: int = 50
     
     def toggle_color_picker(self):
         self.color_picker_state = not self.color_picker_state
+        
+    def usage_toast(self):
+        if self.color_picker_usage_state == False:
+            self.color_picker_usage_state = True
+            return rx.toast.info("Click anywhere to show/hide color picker and drag", position="bottom-right", close_button=True)
         
         
 def spacing():
@@ -277,38 +255,15 @@ def verification():
                            ),
             ),
             spacing(),
-            rx.form(
-                rx.flex(
-                    rx.center(
-                        rx.button(
-                            rx.icon(tag="github"),
-                            "Sign in with Github",
-                            on_click=FormState.github_login,
-                            variant="surface",
-                            color_scheme="red",
-                            height="6vh",
-                        )
-                    ),
-                    spacing(),
-                    rx.box(
-                            rx.center(google_recaptcha_v2()),
-                            padding_inline="5px",
-                           ),
-                    spacing(),
-                    rx.center(
-                        rx.button(
-                            "Submit",
-                            type="submit",
-                            size="3",
-                            variant="soft",
-                            color_scheme="red",
-                        )
-                    ),
-                    rx.text(FormState.form_error, align="center"),
-                    direction="column",
-                    spacing="4",
-                ),
-                on_submit=FormState.handle_submit,
+            rx.center(
+                rx.button(
+                    rx.icon(tag="github"),
+                    "Sign in with Github",
+                    on_click=FormState.github_login,
+                    variant="surface",
+                    color_scheme="red",
+                    height="6vh",
+                )
             ),
             position="fixed",
             top="50%",
@@ -331,6 +286,7 @@ def canvas() -> rx.Component:
             height="100vh",
             position="fixed",
             on_click=ColorState.toggle_color_picker,
+            on_mouse_move=ColorState.usage_toast,
             )
 
 def color_placer():
