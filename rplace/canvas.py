@@ -61,6 +61,10 @@ class FormState(rx.State):
             "window.location.href",
             callback=FormState.authorize_github_user,
         )
+        
+    def check_auth(self):
+        if not self.github_authorised:
+            return rx.redirect("/canvas/access-denied")
     
     def authorize_github_user(self, callback_url: str):
         
