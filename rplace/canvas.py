@@ -10,6 +10,7 @@ import requests
 from urllib.parse import urlparse, parse_qs
 
 import asyncio
+import json
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
@@ -150,8 +151,14 @@ class ColorState(rx.State):
     x: int = 50
     y: int = 50
     
+    color_select: str = "#be4a2f"
+    
     def toggle_color_picker(self):
         self.color_picker_state = not self.color_picker_state
+        
+    def change_color_select(self, color):
+        self.color_select = color
+        return rx.call_script(f"window.currentColor = {json.dumps(color)};")
         
     def usage_toast(self):
         if self.color_picker_usage_state == False:
@@ -200,12 +207,12 @@ def navbar() -> rx.Component:
         rx.menu.content(
             rx.menu.item(link(text="Tutorial",   url="/tutorial",                                       bool=False,)),
             rx.menu.item(link(text="Repository", url="https://github.com/Decrescent398/rplace-commits", bool=True, )),
-            rx.menu.item(link(text="Download",   url="/canvas.jpg",                                     bool=True, )),
             rx.menu.item(link(text="Home",       url="..",                                               bool=True, )),
             rx.menu.item(link(text="HackClub",   url="https://hackclub.com",                            bool=True, )),
             color_scheme="red",
             background_color="#000000",
         ),
+        data_ui="true",
     )
     
 @rx.page(route="/canvas/access-denied", title="Access Denied",)
@@ -281,17 +288,84 @@ def verification():
     
 def canvas() -> rx.Component:
     return rx.box(
-            rx.image(src="/canvas.jpg", width="100%", height="100vh", z_index="999", top="0",),
+            rx.el.canvas(id="canvas", style={"display": "block"},),
+            rx.script(
+            """
+                (function(){
+                    
+                    const PIXEL = 6;
+                    
+                    function resizeCanvas(canvas, ctx) {
+                        const snap = document.createElement("canvas");
+                        snap.width  = canvas.width;
+                        snap.height = canvas.height;
+
+                        if (canvas.width && canvas.height) {
+                            snap.getContext("2d").drawImage(canvas, 0, 0);
+                        }
+
+                        const dpr = window.devicePixelRatio || 1;
+                        canvas.width  = window.innerWidth  * dpr;
+                        canvas.height = window.innerHeight * dpr;
+                        canvas.style.width  = window.innerWidth  + "px";
+                        canvas.style.height = window.innerHeight + "px";
+
+                        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                        ctx.imageSmoothingEnabled = false;
+                        ctx.drawImage(snap, 0, 0);
+                    }
+                    
+                    function init() {
+                        const canvas = document.getElementById("canvas");
+
+                        if (!canvas) {
+                            requestAnimationFrame(init);
+                            return;
+                        }
+
+                        if (canvas.dataset.ready === "1") return;
+                        canvas.dataset.ready = "1";
+
+                        const ctx = canvas.getContext("2d");
+
+                        resizeCanvas(canvas, ctx);
+
+                        window.addEventListener("resize", () => resizeCanvas(canvas, ctx));
+
+                        window.currentColor = window.currentColor || "#be4a2f";
+
+                        window.addEventListener("click", (e) => {
+                            console.log("clicky");
+                            if (e.target.closest("[data-ui]")) return;
+
+                            const rect = canvas.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            const y = e.clientY - rect.top;
+                            if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+
+                            const gx = Math.floor(x / PIXEL) * PIXEL;
+                            const gy = Math.floor(y / PIXEL) * PIXEL;
+
+                            ctx.fillStyle = window.currentColor;
+                            ctx.fillRect(gx, gy, PIXEL, PIXEL);
+                        });
+                    }
+                    init();
+                })();
+            """
+            ),
             width="100%", 
             height="100vh",
             position="fixed",
-            on_click=ColorState.toggle_color_picker,
+            top="0",
+            left="0",
+            z_index="1",
             on_mouse_move=ColorState.usage_toast,
             )
 
 def color_placer():
     return rx.cond(
-        ~FormState.dialog_open & ColorState.color_picker_state,
+        ~FormState.dialog_open & ~ColorState.color_picker_state,
         rx.box(
             rx.script(
                 """
@@ -347,7 +421,21 @@ def color_placer():
                 rx.grid(
                     rx.foreach(
                         ColorState.colors,
-                        lambda color: rx.box(background_color=color, height="4vh", width="2vw", cursor="pointer")
+                        lambda color: rx.box(
+                            background_color=color, 
+                            height="4vh",
+                            width="2vw", 
+                            cursor="pointer",
+                            on_click=lambda: ColorState.change_color_select(color),
+                            style=rx.match(
+                                color,
+                                (
+                                    ColorState.color_select, 
+                                    {"border": "3px solid #E5E7EB", "border_radius": "5px",},
+                                ),
+                                {},
+                            ),
+                        ),
                     ),
                     columns="8",
                     spacing_x="1",
@@ -365,7 +453,8 @@ def color_placer():
                 data_draggable="true",
             ),
             position="fixed",
-            z_index="1000",
+            z_index="10000",
+            data_ui="true",
         ),
     )
 
