@@ -3,7 +3,7 @@
 import reflex as rx
 from rxconfig import config
 
-from . import tutorial, canvas
+from . import tutorial, canvas, auth
 
 def mouseEffect() -> rx.Component:
     return rx.grid(
@@ -65,7 +65,7 @@ def redirects() -> rx.Component:
                             height="5vw",
                             width="10vw",),
                   rx.button("Canvas",
-                            on_click=rx.redirect("/canvas"),
+                            on_click=rx.redirect("/auth"),
                             font_size="1.7vw",
                             color="#FFFDF1",
                             variant="soft",
@@ -110,5 +110,6 @@ app = rx.App(
 )
 
 app.add_page(index, title="r/hack")
-app.add_page(canvas.content, title="r/hack", route="/canvas", on_load=[canvas.FormState.toggle_dialog, canvas.FormState.check_auth])
+app.add_page(auth.content, title="Authenticate", route="/auth")
+app.add_page(canvas.content, title="r/hack", route="/canvas", on_load=auth.FormState.check_auth)
 app.add_page(tutorial.content, title="Tutorial", route="/tutorial")
