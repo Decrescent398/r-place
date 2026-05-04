@@ -5,11 +5,8 @@ import os
 from dotenv import load_dotenv
 from github import Github, Auth
 from requests_oauthlib import OAuth2Session
-from oauthlib.oauth2.rfc6749.errors import AccessDeniedError
-import requests
 from urllib.parse import urlparse, parse_qs
 
-import asyncio
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
@@ -28,16 +25,12 @@ gh = Github(auth=auth, lazy=True)
 repo = gh.get_repo("Decrescent398/GithubTutorial-rplace-commits-")
 
 class FormState(rx.State):
-    dialog_open: bool = False
     
     username: str = ""
     oauth_token: dict = {}
     oauth_state: str = ""
     github_authorised: bool = False
     oauth_error: str = ""
-    
-    def toggle_dialog(self):
-        self.dialog_open = not self.dialog_open
         
     def fetch_contributors(self):
         contributors = [contributor.login for contributor in repo.get_contributors()]
@@ -164,12 +157,9 @@ def callback():
         height="100vh",
     )
     
-def spacing():
-    return rx.box(height="1vh")
     
 def verification():
     return rx.box(
-        # Backdrop
         rx.box(
             position="fixed",
             top="0",
@@ -179,7 +169,6 @@ def verification():
             background_color="#000000",
             z_index="10",
         ),
-        # Card
         rx.box(
             rx.center(
                 rx.heading("Welcome to r/Hack", 
@@ -188,7 +177,7 @@ def verification():
                            color="#EC3750",
                            ),
             ),
-            spacing(),
+            rx.box(height="1vh"),
             rx.center(
                 rx.button(
                     rx.icon(tag="github"),
@@ -210,7 +199,6 @@ def verification():
             z_index="11",
             min_width="320px",
         ),
-        display=rx.cond(FormState.dialog_open, "block", "none"),
     )
 
 def content() -> rx.Component:

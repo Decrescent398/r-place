@@ -1,5 +1,5 @@
 import reflex as rx
-from rxconfig import config\
+from rxconfig import config
     
 import json
 
@@ -11,16 +11,8 @@ class ColorState(rx.State):
         "#124e89", "#0099db", "#2ce8f5", "#ffffff", "#c0cbdc", "#8b9bb4", "#5a6988", "#3a4466", 
         "#262b44", "#181425", "#ff0044", "#68386c", "#b55088", "#f6757a", "#e8b796", "#c28569",]
     
-    color_picker_state: bool = False
     color_picker_usage_state: bool = False
-    
-    x: int = 50
-    y: int = 50
-    
     color_select: str = "#be4a2f"
-    
-    def toggle_color_picker(self):
-        self.color_picker_state = not self.color_picker_state
         
     def change_color_select(self, color):
         self.color_select = color
