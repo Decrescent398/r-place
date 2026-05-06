@@ -26,7 +26,7 @@ class ColorState(rx.State):
     def usage_toast(self):
         if self.color_picker_usage_state == False:
             self.color_picker_usage_state = True
-            return rx.toast.info("Click anywhere to show/hide color picker and drag", position="bottom-right", close_button=True)
+            return rx.toast.info("Click anywhere to place pixel, hold to drag color picker ", position="bottom-right", close_button=True)
 
 class Positions(rx.Model, table=True):
     
