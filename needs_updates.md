@@ -1,4 +1,4 @@
 domain config for /tutorial
 domain config for github auth
+backend config for canvas pixel place
 remove insecure transport
-contributor loading if this gets too big

@@ -3,6 +3,8 @@
 import reflex as rx
 from rxconfig import config
 
+from fastapi import FastAPI, Depends
+
 from . import tutorial, canvas, auth
 
 def mouseEffect() -> rx.Component:
@@ -93,6 +95,7 @@ def index() -> rx.Component:
     )
 
 app = rx.App(
+    api_transformer=canvas.fastapi_app,
     style={
         "html, body, #root": {
             "height": "100%",

@@ -2,6 +2,11 @@ import reflex as rx
 from rxconfig import config
     
 import json
+from starlette.responses import JSONResponse
+from starlette.requests import Request
+from fastapi import FastAPI, Depends
+
+fastapi_app = FastAPI(title="Pixel Place")
 
 class ColorState(rx.State):
     
@@ -22,7 +27,51 @@ class ColorState(rx.State):
         if self.color_picker_usage_state == False:
             self.color_picker_usage_state = True
             return rx.toast.info("Click anywhere to show/hide color picker and drag", position="bottom-right", close_button=True)
+
+class Positions(rx.Model, table=True):
     
+    x: int
+    y: int
+    color: str
+
+class CanvasState(rx.State):
+    "Canvas State goes here"
+
+@fastapi_app.post("/api/place")
+async def place_pixel_request(request: Request):
+    
+    data = await request.json()
+
+    try:
+        x = int(data["x"])
+        y = int(data["y"])
+        color = str(data["color"])
+    except (KeyError, TypeError, ValueError) as e:
+        return JSONResponse(
+            {
+                "ok": False, 
+                "error": str(e)
+            },
+            status_code=400
+        )
+
+    with rx.session() as session:
+        session.add(
+            Positions(
+                x=x,
+                y=y,
+                color=color,
+            )
+        )
+        session.commit()
+    
+    print("success", data)
+    return JSONResponse(
+        {
+            "ok": True
+        }
+    )
+
 def link(text: str, url: str, bool: bool) -> rx.Component:
     return rx.link(
         rx.text(
@@ -71,12 +120,16 @@ def navbar() -> rx.Component:
     
 def canvas() -> rx.Component:
     return rx.box(
-            rx.el.canvas(id="canvas", style={"display": "block"},),
+            rx.el.canvas(
+                id="canvas", 
+                style={"display": "block"},
+            ),
             rx.script(
             """
                 (function(){
                     
                     const PIXEL = 6;
+                    const API = "http://localhost:8000";
                     
                     function resizeCanvas(canvas, ctx) {
                         const snap = document.createElement("canvas");
@@ -118,7 +171,6 @@ def canvas() -> rx.Component:
                         window.currentColor = window.currentColor || "#be4a2f";
 
                         window.addEventListener("click", (e) => {
-                            console.log("clicky");
                             if (e.target.closest("[data-ui]")) return;
 
                             const rect = canvas.getBoundingClientRect();
@@ -131,6 +183,18 @@ def canvas() -> rx.Component:
 
                             ctx.fillStyle = window.currentColor;
                             ctx.fillRect(gx, gy, PIXEL, PIXEL);
+                            
+                        fetch(API + "/api/place", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                x: gx,
+                                y: gy,
+                                color: window.currentColor,
+                            }),
+                        }).then(r => r.json())
+                          .then(d => console.log("placed", d))
+                          .catch(err => console.error("place failed", err));
                         });
                     }
                     init();
