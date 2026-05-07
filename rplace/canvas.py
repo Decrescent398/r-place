@@ -2,11 +2,17 @@ import reflex as rx
 from rxconfig import config
     
 import json
+import asyncio
+from typing import Set
+from sqlmodel import select
 from starlette.responses import JSONResponse
 from starlette.requests import Request
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 fastapi_app = FastAPI(title="Pixel Place")
+
+connected_clients: Set[WebSocket] = set()
+clients_lock = asyncio.Lock()
 
 class ColorState(rx.State):
     
@@ -34,9 +40,32 @@ class Positions(rx.Model, table=True):
     y: int
     color: str
 
-class CanvasState(rx.State):
-    "Canvas State goes here"
-
+@fastapi_app.get("/api/pixels")
+async def get_pixels():
+    with rx.session() as session:
+        rows = session.exec(select(Positions)).all()
+        return JSONResponse(
+            [{
+                "x": row.x,
+                "y": row.y,
+                "color": row.color
+            }for row in rows]
+        )
+        
+async def broadcast(message: dict):
+    
+    dead = []
+    async with clients_lock:
+        
+        for socket in connected_clients:
+            try:
+                await socket.send_json(message)
+            except Exception:
+                dead.append(socket)
+                
+        for socket in dead:
+            connected_clients.discard(socket)
+        
 @fastapi_app.post("/api/place")
 async def place_pixel_request(request: Request):
     
@@ -65,12 +94,35 @@ async def place_pixel_request(request: Request):
         )
         session.commit()
     
-    print("success", data)
+    await broadcast(
+        {
+            "x": x,
+            "y": y,
+            "color": color
+        }
+    )
+    
     return JSONResponse(
         {
             "ok": True
         }
     )
+    
+@fastapi_app.websocket("/api/ws/pixels")
+async def pixel_socket(websocket: WebSocket):
+    
+    await websocket.accept()
+    async with clients_lock:
+        connected_clients.add(websocket)
+        
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        async with clients_lock:
+            connected_clients.discard(websocket)
 
 def link(text: str, url: str, bool: bool) -> rx.Component:
     return rx.link(
@@ -130,6 +182,18 @@ def canvas() -> rx.Component:
                     
                     const PIXEL = 6;
                     const API = "http://localhost:8000";
+                    const WS_URL = API.replace(/^http/, "ws") + "/api/ws/pixels";
+                    
+                    window.__pixels = window.__pixels || [];
+                    
+                    function drawPixel(ctx, p) {
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x * PIXEL, p.y * PIXEL, PIXEL, PIXEL);
+                    }
+
+                    function repaintAll(ctx) {
+                        for (const p of window.__pixels) drawPixel(ctx, p);
+                    }
                     
                     function resizeCanvas(canvas, ctx) {
                         const snap = document.createElement("canvas");
@@ -148,7 +212,38 @@ def canvas() -> rx.Component:
 
                         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                         ctx.imageSmoothingEnabled = false;
-                        ctx.drawImage(snap, 0, 0);
+                        repaintAll(ctx);
+                    }
+                    
+                    async function loadInitial(ctx) {
+                        try {
+                            const res = await fetch(API + "/api/pixels");
+                            const data = await res.json();
+                            window.__pixels = data;
+                            repaintAll(ctx);
+                        } catch (e) {
+                            console.error("failed to load pixels", e);
+                        }
+                    }
+                    
+                    function openSocket(ctx) {
+                        let ws;
+                        function connect() {
+                            ws = new WebSocket(WS_URL);
+                            ws.onmessage = (ev) => {
+                                try {
+                                    const p = JSON.parse(ev.data);
+                                    window.__pixels.push(p);
+                                    drawPixel(ctx, p);
+                                } catch (e) { console.error(e); }
+                            };
+                            ws.onclose = () => {
+                                // auto-reconnect after 1s
+                                setTimeout(connect, 1000);
+                            };
+                            ws.onerror = () => ws.close();
+                        }
+                        connect();
                     }
                     
                     function init() {
@@ -169,6 +264,8 @@ def canvas() -> rx.Component:
                         window.addEventListener("resize", () => resizeCanvas(canvas, ctx));
 
                         window.currentColor = window.currentColor || "#be4a2f";
+                        
+                        loadInitial(ctx).then(() => openSocket(ctx));
 
                         window.addEventListener("click", (e) => {
                             if (e.target.closest("[data-ui]")) return;
@@ -177,25 +274,20 @@ def canvas() -> rx.Component:
                             const x = e.clientX - rect.left;
                             const y = e.clientY - rect.top;
                             if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+                            
+                            const cellX = Math.floor(x / PIXEL);
+                            const cellY = Math.floor(y / PIXEL);
+                            const p = { x: cellX, y: cellY, color: window.currentColor };
 
-                            const gx = Math.floor(x / PIXEL) * PIXEL;
-                            const gy = Math.floor(y / PIXEL) * PIXEL;
-
-                            ctx.fillStyle = window.currentColor;
-                            ctx.fillRect(gx, gy, PIXEL, PIXEL);
+                            window.__pixels.push(p);
+                            drawPixel(ctx, p);
                             
                         fetch(API + "/api/place", {
                             method: "POST",
                             headers: {"Content-Type": "application/json"},
-                            body: JSON.stringify({
-                                x: gx,
-                                y: gy,
-                                color: window.currentColor,
-                            }),
-                        }).then(r => r.json())
-                          .then(d => console.log("placed", d))
-                          .catch(err => console.error("place failed", err));
-                        });
+                            body: JSON.stringify(p),
+                        }).catch(err => console.error("place failed", err));
+                       });
                     }
                     init();
                 })();
