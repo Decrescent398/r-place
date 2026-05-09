@@ -129,7 +129,7 @@ class FormState(rx.State):
             return rx.redirect('/canvas')
         
         except Exception as e:
-            self.oauth_error += e + "\n"
+            self.oauth_error += str(e) + "\n"
             return rx.redirect('canvas/access-denied')
     
 @rx.page(route="/canvas/access-denied", title="Access Denied",)
