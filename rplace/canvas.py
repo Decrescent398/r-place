@@ -200,7 +200,7 @@ def navbar() -> rx.Component:
                 size="2",
                 variant="soft",
                 color_scheme="gray",
-                background="transparent",
+                background="#000000",
                 high_contrast=True,
                 radius="large",
                 position="fixed",
