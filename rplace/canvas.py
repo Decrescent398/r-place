@@ -3,16 +3,25 @@ from rxconfig import config
     
 import json
 import asyncio
+import ntplib
+import os
+from dotenv import load_dotenv
+from datetime import datetime, timezone
 from typing import Set
 from sqlmodel import select
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
+load_dotenv()
+NTP_SERVER_ID=str(os.getenv("NTP_SERVER_ID"))
+
 fastapi_app = FastAPI(title="Pixel Place")
 
 connected_clients: Set[WebSocket] = set()
 clients_lock = asyncio.Lock()
+
+clock = ntplib.NTPClient()
 
 class ColorState(rx.State):
     
@@ -33,6 +42,47 @@ class ColorState(rx.State):
         if self.color_picker_usage_state == False:
             self.color_picker_usage_state = True
             return rx.toast.info("Click anywhere to place pixel, hold to drag color picker ", position="bottom-right", close_button=True)
+
+class TimerState(rx.State):
+    
+    places_left: str = rx.LocalStorage("10", sync=True)
+    last_time: str = rx.LocalStorage(datetime.now(timezone.utc).isoformat(), sync=True)
+    
+    servers: list[str] = [
+        "time.google.com",
+        "time.cloudflare.com",
+        "time.nist.gov",
+        "time.ntp.org",
+    ]
+    
+    def reset_places(self):
+        
+        for server in self.servers:
+            
+            try:
+                response = clock.request(server, version=3)
+            except TimeoutError:
+                continue
+            
+            break
+
+        current_time = datetime.fromtimestamp(response.tx_time, timezone.utc)
+
+        time_prev = datetime.fromisoformat(self.last_time) 
+        
+        if (time_prev - current_time).total_seconds() > 0:
+            self.last_time = rx.LocalStorage(current_time.isoformat(), sync=True)
+            self.places_left = 10
+            return
+        
+    def limit_places(self):
+        
+        self.places_left = str(int(self.places_left) - 1)
+        
+    def no_places_toast(self):
+        
+        if int(self.places_left) == 0:
+            return rx.toast.info("Out of pixels! Check back in an hour to place more.", position="bottom-right", close_button=True)
 
 class Positions(rx.Model, table=True):
     
@@ -174,123 +224,112 @@ def canvas() -> rx.Component:
     return rx.box(
             rx.el.canvas(
                 id="canvas", 
-                style={"display": "block"},
+                display="block",
+                on_click=TimerState.limit_places,
+            ),
+            rx.script(
+            "window.__placesLeft = " + TimerState.places_left.to_string() + ";"
             ),
             rx.script(
             """
-                (function(){
-                    
-                    const PIXEL = 6;
-                    const API = "http://localhost:8000";
-                    const WS_URL = API.replace(/^http/, "ws") + "/api/ws/pixels";
-                    
-                    window.__pixels = window.__pixels || [];
-                    
-                    function drawPixel(ctx, p) {
-                        ctx.fillStyle = p.color;
-                        ctx.fillRect(p.x * PIXEL, p.y * PIXEL, PIXEL, PIXEL);
+            (function(){
+                const PIXEL = 6;
+                const API = "http://localhost:8000";
+                const WS_URL = API.replace(/^http/, "ws") + "/api/ws/pixels";
+
+                window.__pixels = window.__pixels || [];
+
+                function drawPixel(ctx, p) {
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x * PIXEL, p.y * PIXEL, PIXEL, PIXEL);
+                }
+                function repaintAll(ctx) {
+                    for (const p of window.__pixels) drawPixel(ctx, p);
+                }
+
+                function resizeCanvas(canvas, ctx) {
+                    const snap = document.createElement("canvas");
+                    snap.width  = canvas.width;
+                    snap.height = canvas.height;
+                    if (canvas.width && canvas.height) {
+                        snap.getContext("2d").drawImage(canvas, 0, 0);
                     }
+                    const dpr = window.devicePixelRatio || 1;
+                    canvas.width  = window.innerWidth  * dpr;
+                    canvas.height = window.innerHeight * dpr;
+                    canvas.style.width  = window.innerWidth  + "px";
+                    canvas.style.height = window.innerHeight + "px";
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    ctx.imageSmoothingEnabled = false;
+                    repaintAll(ctx);
+                }
 
-                    function repaintAll(ctx) {
-                        for (const p of window.__pixels) drawPixel(ctx, p);
-                    }
-                    
-                    function resizeCanvas(canvas, ctx) {
-                        const snap = document.createElement("canvas");
-                        snap.width  = canvas.width;
-                        snap.height = canvas.height;
-
-                        if (canvas.width && canvas.height) {
-                            snap.getContext("2d").drawImage(canvas, 0, 0);
-                        }
-
-                        const dpr = window.devicePixelRatio || 1;
-                        canvas.width  = window.innerWidth  * dpr;
-                        canvas.height = window.innerHeight * dpr;
-                        canvas.style.width  = window.innerWidth  + "px";
-                        canvas.style.height = window.innerHeight + "px";
-
-                        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                        ctx.imageSmoothingEnabled = false;
+                async function loadInitial(ctx) {
+                    try {
+                        const res  = await fetch(API + "/api/pixels");
+                        const data = await res.json();
+                        window.__pixels = data;
                         repaintAll(ctx);
+                    } catch (e) { console.error("failed to load pixels", e); }
+                }
+
+                function openSocket(ctx) {
+                    let ws;
+                    function connect() {
+                        ws = new WebSocket(WS_URL);
+                        ws.onmessage = (ev) => {
+                            try {
+                                const p = JSON.parse(ev.data);
+                                window.__pixels.push(p);
+                                drawPixel(ctx, p);
+                            } catch (e) { console.error(e); }
+                        };
+                        ws.onclose = () => setTimeout(connect, 1000);
+                        ws.onerror = () => ws.close();
                     }
-                    
-                    async function loadInitial(ctx) {
-                        try {
-                            const res = await fetch(API + "/api/pixels");
-                            const data = await res.json();
-                            window.__pixels = data;
-                            repaintAll(ctx);
-                        } catch (e) {
-                            console.error("failed to load pixels", e);
-                        }
-                    }
-                    
-                    function openSocket(ctx) {
-                        let ws;
-                        function connect() {
-                            ws = new WebSocket(WS_URL);
-                            ws.onmessage = (ev) => {
-                                try {
-                                    const p = JSON.parse(ev.data);
-                                    window.__pixels.push(p);
-                                    drawPixel(ctx, p);
-                                } catch (e) { console.error(e); }
-                            };
-                            ws.onclose = () => {
-                                // auto-reconnect after 1s
-                                setTimeout(connect, 1000);
-                            };
-                            ws.onerror = () => ws.close();
-                        }
-                        connect();
-                    }
-                    
-                    function init() {
-                        const canvas = document.getElementById("canvas");
+                    connect();
+                }
 
-                        if (!canvas) {
-                            requestAnimationFrame(init);
-                            return;
-                        }
+                function init() {
+                    const canvas = document.getElementById("canvas");
+                    if (!canvas) { requestAnimationFrame(init); return; }
+                    if (canvas.dataset.ready === "1") return;
+                    canvas.dataset.ready = "1";
 
-                        if (canvas.dataset.ready === "1") return;
-                        canvas.dataset.ready = "1";
+                    const ctx = canvas.getContext("2d");
+                    resizeCanvas(canvas, ctx);
+                    window.addEventListener("resize", () => resizeCanvas(canvas, ctx));
+                    window.currentColor = window.currentColor || "#be4a2f";
 
-                        const ctx = canvas.getContext("2d");
+                    loadInitial(ctx).then(() => openSocket(ctx));
 
-                        resizeCanvas(canvas, ctx);
+                    window.addEventListener("click", (e) => {
+                        if (e.target.closest("[data-ui]")) return;
+                        const left = Number(window.__placesLeft);
+                        if (!Number.isFinite(left) || left <= 0) return;
 
-                        window.addEventListener("resize", () => resizeCanvas(canvas, ctx));
+                        const rect = canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
 
-                        window.currentColor = window.currentColor || "#be4a2f";
-                        
-                        loadInitial(ctx).then(() => openSocket(ctx));
+                        const cellX = Math.floor(x / PIXEL);
+                        const cellY = Math.floor(y / PIXEL);
+                        const p = { x: cellX, y: cellY, color: window.currentColor };
+                        window.__placesLeft = left - 1;
 
-                        window.addEventListener("click", (e) => {
-                            if (e.target.closest("[data-ui]")) return;
+                        window.__pixels.push(p);
+                        drawPixel(ctx, p);
 
-                            const rect = canvas.getBoundingClientRect();
-                            const x = e.clientX - rect.left;
-                            const y = e.clientY - rect.top;
-                            if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-                            
-                            const cellX = Math.floor(x / PIXEL);
-                            const cellY = Math.floor(y / PIXEL);
-                            const p = { x: cellX, y: cellY, color: window.currentColor };
-
-                            window.__pixels.push(p);
-                            drawPixel(ctx, p);
-                            
                         fetch(API + "/api/place", {
                             method: "POST",
                             headers: {"Content-Type": "application/json"},
                             body: JSON.stringify(p),
                         }).catch(err => console.error("place failed", err));
-                       });
-                    }
-                    init();
-                })();
+                    });
+                }
+                init();
+            })();
             """
             ),
             width="100%", 
@@ -299,7 +338,8 @@ def canvas() -> rx.Component:
             top="0",
             left="0",
             z_index="1",
-            on_mouse_move=ColorState.usage_toast,
+            style={"pointerEvents": rx.cond(TimerState.places_left == '0', "none", "auto")},
+            on_mouse_move=[ColorState.usage_toast, TimerState.no_places_toast,],
             )
 
 def color_placer():
