@@ -1,1 +1,8 @@
 reflex==0.8.28.post1
+requests-oauthlib==2.0.0
+PyGithub==2.9.1
+ntplib==0.4.0
+python-dotenv==1.2.2
+sqlmodel==0.0.38
+starlette==1.0.0
+fastapi==0.136.1

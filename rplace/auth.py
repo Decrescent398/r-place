@@ -7,14 +7,17 @@ from github import Github, Auth
 from requests_oauthlib import OAuth2Session
 from urllib.parse import urlparse, parse_qs
 
+load_dotenv()
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-load_dotenv()
+BACKEND = str(os.getenv("BACKEND"))
+FRONTEND = str(os.getenv("FRONTEND"))
+
 GITHUB_FINE_PAT = os.getenv("GITHUB_FINE_PAT")
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
+GITHUB_REDIRECT_URI = FRONTEND + str(os.getenv("GITHUB_REDIRECT_URI"))
 
 GITHUB_AUTHORIZATION_BASE_URL = "https://github.com/login/oauth/authorize"
 GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"

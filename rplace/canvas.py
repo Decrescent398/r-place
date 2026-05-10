@@ -14,7 +14,7 @@ from starlette.requests import Request
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 load_dotenv()
-NTP_SERVER_ID=str(os.getenv("NTP_SERVER_ID"))
+BACKEND = str(os.getenv("BACKEND"))
 
 fastapi_app = FastAPI(title="Pixel Place")
 
@@ -193,7 +193,8 @@ def navbar() -> rx.Component:
         rx.menu.trigger(
             rx.button(
                 rx.icon(
-                    "align_justify", 
+                    "align_justify",
+                    color="#ffffff", 
                     stroke_width="2", 
                     size=20,
                 ),
@@ -234,7 +235,7 @@ def canvas() -> rx.Component:
             """
             (function(){
                 const PIXEL = 6;
-                const API = "http://localhost:8000";
+                const API = "%s";
                 const WS_URL = API.replace(/^http/, "ws") + "/api/ws/pixels";
 
                 window.__pixels = window.__pixels || [];
@@ -330,7 +331,7 @@ def canvas() -> rx.Component:
                 }
                 init();
             })();
-            """
+            """ % (BACKEND)
             ),
             width="100%", 
             height="100vh",
