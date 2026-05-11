@@ -5,6 +5,7 @@ import json
 import asyncio
 import ntplib
 import os
+import sqlmodel
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 from typing import Set
@@ -84,8 +85,9 @@ class TimerState(rx.State):
         if int(self.places_left) == 0:
             return rx.toast.info("Out of pixels! Check back in an hour to place more.", position="bottom-right", close_button=True)
 
-class Positions(rx.Model, table=True):
+class Positions(sqlmodel.SQLModel, table=True):
     
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     x: int
     y: int
     color: str

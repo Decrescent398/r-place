@@ -106,13 +106,10 @@ app = rx.App(
         },
         "::selection": {"background_color": "#4e8cff"},
     },
-    theme = rx.theme(
-        breakpoints = ["520px", "768px", "1024px", "1280px", "1640px"],
-    ),
     stylesheets = ["fonts.css"],
 )
 
-app.add_page(index, title="r/hack")
+app.add_page(index, title="r/hack",)
 app.add_page(auth.content, title="Authenticate", route="/auth")
 app.add_page(canvas.content, title="r/hack", route="/canvas", on_load=[auth.FormState.check_auth, canvas.TimerState.reset_places])
 app.add_page(tutorial.content, title="Tutorial", route="/tutorial")

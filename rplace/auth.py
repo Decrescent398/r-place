@@ -183,7 +183,7 @@ def verification():
             rx.box(height="1vh"),
             rx.center(
                 rx.button(
-                    rx.icon(tag="github"),
+                    rx.icon(tag="git_branch_plus"),
                     "Sign in with Github",
                     on_click=FormState.github_login,
                     variant="surface",
