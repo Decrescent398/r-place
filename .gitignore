@@ -10,3 +10,5 @@ assets/external/
 
 alembic/
 alembic.ini
+
+reflex.lock

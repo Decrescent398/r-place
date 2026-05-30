@@ -12,7 +12,7 @@ config = rx.Config(
     app_name="rplace",
     api_url=BACKEND,
     db_url=DB,
-    vite_allowed_hosts=[FRONTEND],
+    vite_allowed_hosts=True,
     show_built_with_reflex=False,
     plugins=[
         rx.plugins.SitemapPlugin(),

@@ -3,7 +3,6 @@ from rxconfig import config
     
 import json
 import asyncio
-import ntplib
 import os
 import sqlmodel
 from dotenv import load_dotenv
@@ -21,8 +20,6 @@ fastapi_app = FastAPI(title="Pixel Place")
 
 connected_clients: Set[WebSocket] = set()
 clients_lock = asyncio.Lock()
-
-clock = ntplib.NTPClient()
 
 class ColorState(rx.State):
     
