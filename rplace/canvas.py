@@ -44,52 +44,18 @@ class ColorState(rx.State):
             self.color_picker_usage_state = True
             return rx.toast.info("Click anywhere to place pixel, hold to drag color picker ", position="bottom-right", close_button=True)
 
-class TimerState(rx.State):
-    
-    places_left: str = rx.LocalStorage("10", sync=True)
-    last_time: str = rx.LocalStorage(datetime.now(timezone.utc).isoformat(), sync=True)
-    
-    servers: list[str] = [
-        "time.google.com",
-        "time.cloudflare.com",
-        "time.nist.gov",
-        "time.ntp.org",
-    ]
-    
-    def reset_places(self):
-        
-        for server in self.servers:
-            
-            try:
-                response = clock.request(server, version=3)
-            except TimeoutError:
-                continue
-            
-            break
+class RateLimit(sqlmodel.SQLModel, table=True):
 
-        current_time = datetime.fromtimestamp(response.tx_time, timezone.utc)
-
-        time_prev = datetime.fromisoformat(self.last_time) 
-        
-        if (time_prev - current_time).total_seconds() > 0:
-            self.last_time = rx.LocalStorage(current_time.isoformat(), sync=True)
-            self.places_left = 10
-            return
-        
-    def limit_places(self):
-        
-        self.places_left = str(int(self.places_left) - 1)
-        
-    def no_places_toast(self):
-        
-        if int(self.places_left) == 0:
-            return rx.toast.info("Out of pixels! Check back in an hour to place more.", position="bottom-right", close_button=True)
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
+    ip: str = sqlmodel.Field(index=True, unique=True)
+    places_used: int = sqlmodel.Field(default=0)
+    last_reset: datetime = sqlmodel.Field(datetime.now(timezone.utc))
 
 class Positions(sqlmodel.SQLModel, table=True):
     
     id: int | None = sqlmodel.Field(default=None, primary_key=True)
-    x: int
-    y: int
+    x: int = sqlmodel.Field(default=0)
+    y: int = sqlmodel.Field(default=0)
     color: str
 
 @fastapi_app.get("/api/pixels")
@@ -122,6 +88,41 @@ async def broadcast(message: dict):
 async def place_pixel_request(request: Request):
     
     data = await request.json()
+    client_ip = request.client.host
+    
+    with rx.session() as session:
+        record = session.exec(select(RateLimit).where(RateLimit.ip == client_ip)).first()
+        
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        
+        if record is None:
+            session.add(
+                RateLimit(
+                    ip=client_ip,
+                    places_used=0,
+                    last_reset=now,
+                )
+            )
+            session.commit()
+            record = session.exec(select(RateLimit).where(RateLimit.ip == client_ip)).first()
+            
+        elapsed = (now - record.last_reset).total_seconds()
+        if elapsed >= 3600:
+            record.places_used = 0
+            record.last_reset = now
+            
+        if int(record.places_used) >= 25:
+            return JSONResponse(
+                {
+                    "ok": False,
+                    "error": "Rate Limited"
+                },
+                status_code=429
+            )
+        record.places_used += 1
+        
+        session.add(record)
+        session.commit()
 
     try:
         x = int(data["x"])
@@ -159,6 +160,8 @@ async def place_pixel_request(request: Request):
             "ok": True
         }
     )
+    
+    return
     
 @fastapi_app.websocket("/api/ws/pixels")
 async def pixel_socket(websocket: WebSocket):
@@ -228,10 +231,6 @@ def canvas() -> rx.Component:
             rx.el.canvas(
                 id="canvas", 
                 display="block",
-                on_click=TimerState.limit_places,
-            ),
-            rx.script(
-            "window.__placesLeft = " + TimerState.places_left.to_string() + ";"
             ),
             rx.script(
             """
@@ -304,6 +303,9 @@ def canvas() -> rx.Component:
                     window.addEventListener("resize", () => resizeCanvas(canvas, ctx));
                     window.currentColor = window.currentColor || "#be4a2f";
 
+                    if (!Number.isFinite(Number(window.__placesLeft))) {
+                        window.__placesLeft = 25
+                    }
                     loadInitial(ctx).then(() => openSocket(ctx));
 
                     window.addEventListener("click", (e) => {
@@ -328,7 +330,14 @@ def canvas() -> rx.Component:
                             method: "POST",
                             headers: {"Content-Type": "application/json"},
                             body: JSON.stringify(p),
-                        }).catch(err => console.error("place failed", err));
+                        })
+                        .then(async(response) => {
+                            if (response.status === 429) {
+                                alert("Out of pixels! Check back in an hour to place more.");
+                                return;
+                            } 
+                        })
+                        .catch(err => console.error("place failed", err));
                     });
                 }
                 init();
@@ -341,8 +350,7 @@ def canvas() -> rx.Component:
             top="0",
             left="0",
             z_index="1",
-            style={"pointerEvents": rx.cond(TimerState.places_left == '0', "none", "auto")},
-            on_mouse_move=[ColorState.usage_toast, TimerState.no_places_toast,],
+            on_mouse_move=ColorState.usage_toast
             )
 
 def color_placer():

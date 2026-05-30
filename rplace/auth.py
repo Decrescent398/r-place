@@ -9,8 +9,6 @@ from urllib.parse import urlparse, parse_qs
 
 load_dotenv()
 
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
 BACKEND = str(os.getenv("BACKEND"))
 FRONTEND = str(os.getenv("FRONTEND"))
 

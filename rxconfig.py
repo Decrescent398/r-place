@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 BACKEND = str(os.getenv("BACKEND"))
 FRONTEND = str(os.getenv("FRONTEND"))
-DB = str(os.getenv("DB"))
+DB = os.getenv("DATABASE_URL")
 
 config = rx.Config(
     app_name="rplace",
