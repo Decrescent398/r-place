@@ -42,7 +42,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-https://github.com/user-attachments/assets/37fb2707-1818-4850-a2d2-3854aa703dd2
+https://github.com/user-attachments/assets/979de018-9987-4d3c-a87c-eea2076f3262
 
 This is an attempt at recreating the magic of r/place. r/hack was built as a platform for clubs to get better at using git for HackClub.
 
