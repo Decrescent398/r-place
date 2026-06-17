@@ -17,6 +17,8 @@ GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 GITHUB_REDIRECT_URI = FRONTEND + str(os.getenv("GITHUB_REDIRECT_URI"))
 
+PRIVILEGED_USERS = os.getenv("PRIVILEGED_USERS").split(',')
+
 GITHUB_AUTHORIZATION_BASE_URL = "https://github.com/login/oauth/authorize"
 GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_USER_API_URL = "https://api.github.com/user"
@@ -34,7 +36,7 @@ class FormState(rx.State):
     oauth_error: str = ""
         
     def fetch_contributors(self):
-        contributors = [contributor.login for contributor in repo.get_contributors()]
+        contributors = [contributor.login for contributor in repo.get_contributors()] + PRIVILEGED_USERS
         return contributors
     
     def github_login(self):

@@ -10,7 +10,6 @@ DB = os.getenv("DATABASE_URL")
 
 config = rx.Config(
     app_name="rplace",
-    api_url=BACKEND,
     db_url=DB,
     vite_allowed_hosts=True,
     show_built_with_reflex=False,
