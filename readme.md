@@ -40,45 +40,9 @@
   </p>
 </div>
 
-
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-<iframe
-    src="https://drive.google.com/file/d/1BDV3jsI4nbzJdFgglz7FyQ-gRuSrDBaH/view?usp=sharing"
-    width="640"
-    height="480"
-    allow="autoplay">
-></iframe>
+https://github.com/user-attachments/assets/979de018-9987-4d3c-a87c-eea2076f3262
 
 This is an attempt at recreating the magic of r/place. r/hack was built as a platform for clubs to get better at using git for HackClub.
 
