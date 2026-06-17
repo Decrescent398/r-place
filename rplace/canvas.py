@@ -300,15 +300,8 @@ def canvas() -> rx.Component:
                     window.addEventListener("resize", () => resizeCanvas(canvas, ctx));
                     window.currentColor = window.currentColor || "#be4a2f";
 
-                    if (!Number.isFinite(Number(window.__placesLeft))) {
-                        window.__placesLeft = 25
-                    }
-                    loadInitial(ctx).then(() => openSocket(ctx));
-
                     window.addEventListener("click", (e) => {
                         if (e.target.closest("[data-ui]")) return;
-                        const left = Number(window.__placesLeft);
-                        if (!Number.isFinite(left) || left <= 0) return;
 
                         const rect = canvas.getBoundingClientRect();
                         const x = e.clientX - rect.left;
@@ -318,7 +311,6 @@ def canvas() -> rx.Component:
                         const cellX = Math.floor(x / PIXEL);
                         const cellY = Math.floor(y / PIXEL);
                         const p = { x: cellX, y: cellY, color: window.currentColor };
-                        window.__placesLeft = left - 1;
 
                         window.__pixels.push(p);
                         drawPixel(ctx, p);
